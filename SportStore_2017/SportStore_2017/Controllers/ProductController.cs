@@ -15,15 +15,20 @@ namespace SportStore_2017.Controllers
 
         public int PageSize = 4;
         // GET: Product
-        public ViewResult List(int page = 1) {
+        public ViewResult List(string category, int page = 1) {
             ProductsListViewModel model = new ProductsListViewModel() {
-                Products = repository.Products.OrderBy(p => p.ProductID)
+                Products = repository.Products
+                .Where(p=>category==null || p.Category==category)
+                .OrderBy(p => p.ProductID)
                     .Skip((page - 1) * PageSize).Take(PageSize),
                 PagingInfo = new PagingInfo() {
                     CurrentPage = page,
                     ItemsPerPage = PageSize,
-                    Totalitems = repository.Products.Count()
-                }
+                    Totalitems =  category==null ?
+                                repository.Products.Count() :
+                                repository.Products.Where(p=>p.Category==category).Count()
+                },
+                CurrentCategory = category
             };
             return View(model);
 
